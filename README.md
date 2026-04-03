@@ -12,6 +12,8 @@ Going to implement more DL stuff and get back on-track with learning math!
 
 paper link: <https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf>
 
+changes: word-level tokenizer
+
 The overall flow will be as follows:
 
 - [ ] loading the dataset
