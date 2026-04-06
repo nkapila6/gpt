@@ -4,6 +4,7 @@
 # word-level tokenizer
 
 import re
+
 from utils import read_data
 
 
@@ -16,9 +17,8 @@ class Vocab:
 
         self.tokens = sorted(set(words) - set(self.special_tokens))
         self.tokens.extend(self.special_tokens)  # adding special tokens
-        self.tokens = sorted(set(words))  # tokens is now a list
 
-        # adding vocab len
+        # adding vocab
         self.vocab = {w: id for id, w in enumerate(self.tokens)}
         self.inv_vocab = {id: w for id, w in enumerate(self.tokens)}
         self.vocab_len = len(self.tokens)
