@@ -47,6 +47,24 @@ class Vocab:
         self.vocab_len = len(self.tokens)
 
 
+class Tokenizer:
+    # simple word level tokenizer
+
+    def __init__(self, vocab: Vocab):
+        self.vocab = vocab
+        self.enc = vocab.word_to_idx  # word to idx
+        self.dec = vocab.idx_to_word  # idx to word
+
+    def encode(self, text: str) -> list[int]:
+        # encoder converts incoming str text to list of token ids
+        preprocessed = re.split(r'([,.:;?_!"()\']|--|--|\s)', text)
+        return [self.enc.get(w, self.enc["<unk>"]) for w in preprocessed]
+
+    def decode(self, ids: list[int]) -> str:
+        # decoder converts list of token ids to str text
+        return " ".join([self.dec.get(id, "<unk>") for id in ids])
+
+
 def word_level_tokenizer(path: str) -> tuple[list, dict, dict]:
     data = read_data(path)
 
