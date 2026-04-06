@@ -23,6 +23,14 @@ class Vocab:
         self.inv_vocab = {id: w for id, w in enumerate(self.tokens)}
         self.vocab_len = len(self.tokens)
 
+    @property
+    def word_to_idx(self):
+        return self.vocab.copy()
+
+    @property
+    def idx_to_word(self):
+        return self.inv_vocab.copy()
+
     def __len__(self):
         # length
         return self.vocab_len
