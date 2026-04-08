@@ -25,7 +25,7 @@ class SelfAttention(nn.Module):
         w_v = self.wv(x)  # N, T, dout
 
         # N,T,T = N, T, dout @ N, dout, T
-        att_weights = w_q @ w_k.transpose(1, 2)
+        att_weights = (w_q @ w_k.transpose(1, 2)) / (self.dout**0.5)
         scores = F.softmax(att_weights, dim=-1)  # N, T, T
 
         # N,T,dout = N,T,T @ N,T,dout
