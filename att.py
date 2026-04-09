@@ -86,6 +86,25 @@ class MultiHeadAttWrapper(nn.Module):
         return torch.concat(context_vectors, dim=-1)
 
 
+class BetterMultiHeadAttWrapper(nn.Module):
+    def __init__(self, din, dout, max_len, num_heads):
+        super().__init__()
+
+        self.din, self.dout, self.max_len, self.num_heads = (
+            din,
+            dout,
+            max_len,
+            num_heads,
+        )
+
+        self.heads = nn.ModuleList(
+            [CausalAttention(din, dout, max_len) for _ in range(num_heads)]
+        )
+
+    def forward(self, x):
+        return torch.cat([head(x) for head in self.heads], dim=-1)
+
+
 class MultiHeadAtt(nn.Module):
     def __init__(self, dout, din):
         pass
