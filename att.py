@@ -34,6 +34,38 @@ class SelfAttention(nn.Module):
         return enriched_vector
 
 
+# masked self attention
+class CausalAttention(nn.Module):
+    def __init__(self, din, dout, max_len):
+        super().__init__()
+        self.din, self.dout = din, dout
+        self.wk, self.wq, self.wv = (
+            nn.Linear(din, dout),
+            nn.Linear(din, dout),
+            nn.Linear(din, dout),
+        )
+
+        # since causality needs lower trial of matrix, we init a persistent var in the buff that takes lower trial of torch.ones
+        self.register_buffer(
+            name="mask",
+            tensor=torch.triu(torch.full((max_len, max_len), -torch.inf), diagonal=1),
+        )
+
+    def forward(self, x):
+        # x is of shape N, T, din where N=batch, T=seqlen, din=input embedding size
+        T = x.size(1)
+        # projecting to get k,q,v
+        k, q, v = self.wk(x), self.wq(x), self.wv(x)  # each of shape N, T, dout
+
+        att_matrix = (q @ k.nT) / (self.dout**0.5)  # N,T,T = N,T,dout @ N,dout,T
+        # atp, we need to apply the mask, ill use torch.where to replace the 0s with -inf for softmax saturation
+        att_matrix += self.mask[:T, :T]
+        weights = F.softmax(att_matrix, dim=-1)  # N,T,T
+
+        enriched_vector = weights @ v
+        return enriched_vector
+
+
 class MultiHeadAtt(nn.Module):
     def __init__(self, dout, din):
         pass
