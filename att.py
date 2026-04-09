@@ -66,6 +66,26 @@ class CausalAttention(nn.Module):
         return enriched_vector
 
 
+# Multi Head Att Wrapper by iterating over Masked Self Att Block
+class MultiHeadAttWrapper(nn.Module):
+    def __init__(self, din, dout, max_len, num_heads):
+        super().__init__()
+        self.din, self.dout, self.max_len, self.num_heads = (
+            din,
+            dout,
+            max_len,
+            num_heads,
+        )
+        self.heads = [CausalAttention(din, dout, max_len) for _ in range(num_heads)]
+
+    def forward(self, x):
+        # x is N, T, din
+        context_vectors = [head(x) for head in self.heads]
+
+        # each head returns shappe N, T, dout.. we need N, T, num_heads * dout
+        return torch.concat(context_vectors, dim=-1)
+
+
 class MultiHeadAtt(nn.Module):
     def __init__(self, dout, din):
         pass
