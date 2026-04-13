@@ -106,8 +106,50 @@ class BetterMultiHeadAttWrapper(nn.Module):
 
 
 class MultiHeadAtt(nn.Module):
-    def __init__(self, dout, din):
-        pass
+    # H is num_heads and T is seq_len
+    def __init__(self, din, dout, H, T):
+        super().__init__()
 
+        assert dout % H == 0, "dout must be divisible by number of heads."
+        self.head_dim = dout // H
+        self.num_heads, self.T = H, T
+
+        self.q, self.k, self.v = (
+            nn.Linear(din, dout),
+            nn.Linear(din, dout),
+            nn.Linear(din, dout),
+        )
+
+        self.out_projection = nn.Linear(dout, dout)
+
+        self.register_buffer(
+            "mask", torch.triu(torch.full((T, T), -torch.inf), diagonal=1)
+        )
+
+    # N, T, E (din)
     def forward(self, x):
-        pass
+        N, T, _ = x.shape
+        if T > self.T:
+            raise ValueError("seq len exceeds configured max len")
+
+        # each of q,k,v is not N,T,dout
+        # preparing q,k,v from the input x
+        q, k, v = self.q(x), self.k(x), self.v(x)
+
+        # reshaping to split across multiple heads, change from N,T,dout to N,T,H,E
+        # transposing each to form N,H,T,E
+        q, k, v = (
+            q.view(N, T, self.num_heads, self.head_dim).transpose(1, 2),
+            k.view(N, T, self.num_heads, self.head_dim).transpose(1, 2),
+            v.view(N, T, self.num_heads, self.head_dim).transpose(1, 2),
+        )
+
+        att_matrix = q @ k.transpose(2, 3)  # NHTE @ NHET=NHTT
+        att_matrix += self.mask[:T, :T]  # NHTT
+        weights = F.softmax(att_matrix, dim=-1)  # NHTT
+
+        # v is NHTE
+        context_vec = weights @ v
+        context_vec = self.out_projection(context_vec)
+
+        return context_vec
