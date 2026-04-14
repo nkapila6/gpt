@@ -15,17 +15,18 @@ The overall flow will be as follows:
 
 - [x] loading the dataset
 - [x] implementing a very simple barebones tokenizer (dictionary)
-- [ ] splitting the dataset - simple splits, not going to worry about cross-validation and all that shiiiit.
 - [x] implementing the layers - only forward pass, not going to do backward passes, that would be torture.
 - [x] writing the forward pass
-- [ ] writing the training loops
+- [ ] splitting the dataset - simple splits, not going to worry about cross-validation and all that shiiiit.
+- [x] writing the training loops
+- [x] writing inference func
 - [ ] training the model
+- [ ] implementing kv-cache for inference
 
 extra steps:
 
 - [ ] compiling the model for production - getting to barebones model and stripping out the runtime.
 - [ ] writing a simple server to send inference requests to, perhaps in golang.
-- [ ] implementing kv-cache for inference
 
 # Architecture
 architecture image for reference
