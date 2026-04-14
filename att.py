@@ -144,13 +144,14 @@ class MultiHeadAtt(nn.Module):
             v.view(N, T, self.num_heads, self.head_dim).transpose(1, 2),
         )
 
-        att_matrix = q @ k.transpose(2, 3)  # NHTE @ NHET=NHTT
+        att_matrix = (q @ k.transpose(2, 3)) / (self.head_dim**0.5)  # NHTE @ NHET=NHTT
         att_matrix += self.mask[:T, :T]  # NHTT
         weights = F.softmax(att_matrix, dim=-1)  # NHTT
 
         # v is NHTE
         context_vec = weights @ v  # NHTT@NHTE-> NHTE
-        context_vec = context_vec.view(N, T, self.dout)
+        context_vec = context_vec.transpose(1, 2)
+        context_vec = context_vec.reshape(N, T, self.dout)
         context_vec = self.out_projection(context_vec)
 
         return context_vec
