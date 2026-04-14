@@ -16,8 +16,8 @@ The overall flow will be as follows:
 - [x] loading the dataset
 - [x] implementing a very simple barebones tokenizer (dictionary)
 - [ ] splitting the dataset - simple splits, not going to worry about cross-validation and all that shiiiit.
-- [ ] implementing the layers - only forward pass, not going to do backward passes, that would be torture.
-- [ ] writing the forward pass
+- [x] implementing the layers - only forward pass, not going to do backward passes, that would be torture.
+- [x] writing the forward pass
 - [ ] writing the training loops
 - [ ] training the model
 
