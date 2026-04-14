@@ -113,6 +113,7 @@ class MultiHeadAtt(nn.Module):
         assert dout % H == 0, "dout must be divisible by number of heads."
         self.head_dim = dout // H
         self.num_heads, self.T = H, T
+        self.dout = dout
 
         self.q, self.k, self.v = (
             nn.Linear(din, dout),
