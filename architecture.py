@@ -49,7 +49,7 @@ class GPT1(nn.Module):
 
         # input
         self.in_token = nn.Embedding(cfg.vocab_size, cfg.emb_size)
-        self.in_position = nn.Embedding(cfg.vocab_size, cfg.emb_size)
+        self.in_position = nn.Embedding(cfg.seq_len, cfg.emb_size)
         self.in_dropout = nn.Dropout(cfg.dropout)
 
         # transformer blocks, 12
