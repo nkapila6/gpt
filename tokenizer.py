@@ -58,21 +58,26 @@ class Tokenizer:
     def encode(self, text: str) -> list[int]:
         # encoder converts incoming str text to list of token ids
         preprocessed = re.split(r'([,.:;?_!"()\']|--|--|\s)', text)
+        preprocessed = [w for w in preprocessed if w and not w.isspace()]
         return [self.enc.get(w, self.enc["<unk>"]) for w in preprocessed]
 
     def decode(self, ids: list[int]) -> str:
         # decoder converts list of token ids to str text
-        return " ".join([self.dec.get(id, "<unk>") for id in ids])
+        text = " ".join([self.dec.get(id, "<unk>") for id in ids])
+        return re.sub(r'\s([,.:;?_!"()\']|--)', r"\1", text)
 
 
 def word_level_tokenizer(path: str) -> tuple[list, dict, dict]:
     data = read_data(path)
 
-    tokens = sorted(set(re.findall(r"\w+|[^\w\s]", data)))
+    words = re.split(r'([,.:;?_!"()\']|--|\s)', data)  # fix: consistent split logic
+    words = [w for w in words if w and not w.isspace()]
+
+    tokens = sorted(set(words))
 
     encoder = {word: idx for idx, word in enumerate(tokens)}
     decoder = {idx: word for idx, word in enumerate(tokens)}
 
-    encoded = [encoder[t] for t in re.findall(r"\w+|[^\w\s]", data)]
+    encoded = [encoder[t] for t in words]
 
     return encoded, encoder, decoder
