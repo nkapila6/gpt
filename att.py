@@ -149,7 +149,8 @@ class MultiHeadAtt(nn.Module):
         weights = F.softmax(att_matrix, dim=-1)  # NHTT
 
         # v is NHTE
-        context_vec = weights @ v
+        context_vec = weights @ v  # NHTT@NHTE-> NHTE
+        context_vec = context_vec.view(N, T, self.dout)
         context_vec = self.out_projection(context_vec)
 
         return context_vec
