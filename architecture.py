@@ -47,6 +47,9 @@ class GPT1(nn.Module):
         # expect a dict with named values, better than long arg list
         super().__init__()
 
+        # cfg
+        self.cfg = cfg
+
         # input
         self.in_token = nn.Embedding(cfg.vocab_size, cfg.emb_size)
         self.in_position = nn.Embedding(cfg.seq_len, cfg.emb_size)
@@ -73,3 +76,18 @@ class GPT1(nn.Module):
         x = self.out_layernorm(x)
         x = self.out_head(x)  # logits here now!!
         return x
+
+    @torch.no_grad()
+    def inference(self, x, max_new_tokens):
+        # x is N, T.
+        for _ in range(max_new_tokens):
+            x1 = x[:, -self.cfg.seq_len :]
+
+            logits = self(x1)
+
+            logits = logits[:, -1, :]  # N,T,din we only need last T
+            probs = torch.softmax(logits, dim=-1)
+            pred = torch.argmax(probs, dim=-1, keepdim=True)  # greedy decode
+            x = torch.cat((x, pred), dim=1)
+
+        return x  # returns token ids for tokenizer decode
