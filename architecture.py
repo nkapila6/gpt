@@ -71,5 +71,5 @@ class GPT1(nn.Module):
         x = self.in_dropout(x)
         x = self.transformer_blocks(x)
         x = self.out_layernorm(x)
-        x = self.out_head  # logits here now!!
+        x = self.out_head(x)  # logits here now!!
         return x
